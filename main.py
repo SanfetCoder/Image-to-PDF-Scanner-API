@@ -7,6 +7,8 @@ import cv2
 import cv2
 import imutils
 from skimage.filters import threshold_local
+from helper.transform import perspective_transform
+
 app = FastAPI()
 
 @app.post("/image/pdf")
@@ -14,6 +16,10 @@ async def process_image(file: UploadFile = File(...)):
   image_bytes = await file.read()
   image_stream = BytesIO(image_bytes)
   image = Image.open(image_stream)
+  # Copy version of the image
+  copy = image.copy()
+  # Ratio of the image
+  ratio = image.shape[0] / 500.0
   # Perform desired image processing here (e.g., resizing, grayscaling, etc.)
   processed_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2GRAY) # Convert colored image to gray scale
   processed_image = cv2.resize(processed_image, (220, 220)) # Resize the image

@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+from PIL import Image
 
 def order_points(pts):
 	# initializing the list of coordinates to be ordered
@@ -54,3 +55,8 @@ def perspective_transform(image, pts):
 
 	# return the warped image
 	return warped
+
+def get_image_dimensions(image_path):
+  with Image.open(image_path) as image:
+    width, height = image.size
+    return width, height
