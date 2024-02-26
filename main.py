@@ -7,7 +7,6 @@ import cv2
 import cv2
 import imutils
 from skimage.filters import threshold_local
-
 app = FastAPI()
 
 @app.post("/image/pdf")
@@ -21,7 +20,26 @@ async def process_image(file: UploadFile = File(...)):
   # Applying edge detector
   blurred_image = cv2.GaussianBlur(processed_image, (5, 5), 0)
   edged_img = cv2.Canny(blurred_image, 75, 200)
-  cv2.imshow('Image edges', edged_img)
+  # Find the largest contour of the edges
+  cnts, _ = cv2.findContours(edged_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+  cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:5]
+  for c in cnts:
+    peri = cv2.arcLength(c, True)
+    approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+    # break this loop if approximate contours is 4
+    if len(approx) == 4:
+      doc = approx
+      break
+  # Circling the Four Corners of the Document Contour
+  p = []
+  for d in doc:
+    tuple_point = tuple(d[0])
+    cv2.circle(processed_image, tuple_point, 3, (0, 0, 255), 4)
+    p.append(tuple_point)
+  # Warp the image 
+  warped_image = perspective_transform(copy, doc.reshape(4, 2) * ratio)
+  warped_image = cv2.cvtColor(warped_image, cv2.COLOR_BGR2GRAY)
+  cv2.imshow("Warped Image", imutils.resize(warped_image, height=650))
   cv2.waitKey(0)
   # Convert the processed image to a BytesIO object
   processed_image_bytes = BytesIO()
