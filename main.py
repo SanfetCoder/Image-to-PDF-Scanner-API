@@ -58,12 +58,12 @@ async def process_image(file: UploadFile = File(...)):
     # Applying Adaptive Threshold and Saving the Scanned Output
     T = threshold_local(warped_image, 11, offset=10, method="gaussian")
     warped = (warped_image > T).astype("uint8") * 255
-    cv2.imwrite('./'+'scan'+'.png',warped)
+    resized_warped = imutils.resize(warped, height = 650)
     # Output image
     # processed_image = imutils.resize(warped, 650)
     # Convert the processed image to a BytesIO object
     processed_image_bytes = BytesIO()
-    cv2.imwrite("temp.png", processed_image)  # Save the processed image temporarily
+    cv2.imwrite("temp.png", resized_warped)  # Save the processed image temporarily
     with open("temp.png", "rb") as f:
       processed_image_bytes.seek(0)
       processed_image_bytes.truncate()
