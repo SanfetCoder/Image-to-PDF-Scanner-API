@@ -19,21 +19,15 @@ async def process_image(file: UploadFile = File(...)):
     image_bytes = await file.read() # Read some bytes from the file
     image_stream = BytesIO(image_bytes) # Buffer the bytes in-memory
     image = Image.open(image_stream) # Read the file bytes and store it in image variable
-    cv2.imshow('Original Image', convert_to_cv(image)) # Show the image to the screen
-    cv2.waitKey(0) # Wait for users to click any key to close down the showing window
     copy = image.copy() # Copy version of the image as original file
     # Image dimension
     width, height = image.size # Get the dimension of the image
     ratio = width / 500.0 # Ratio of the image
     resized_image = imutils.resize(np.array(image), 500)
-    cv2.imshow("Resized image", resized_image)
-    cv2.waitKey(0)
     # Perform desired image processing here (e.g., resizing, grayscaling, etc.)
-    processed_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2GRAY) # Convert colored image to gray scale
+    processed_image = cv2.cvtColor(np.array(resized_image), cv2.COLOR_RGB2GRAY) # Convert colored image to gray scale
     blurred_image = cv2.GaussianBlur(processed_image, (5, 5), 0) # Applying edge detector
     edged_img = cv2.Canny(blurred_image, 75, 200) # Find the edge of document
-    cv2.imshow("Edged image", edged_img)
-    cv2.waitKey(0)
     # Find the largest contour of the edges
     cnts, _ = cv2.findContours(edged_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:5]
@@ -53,14 +47,10 @@ async def process_image(file: UploadFile = File(...)):
     # Warp the image 
     warped_image = perspective_transform(copy, doc.reshape(4, 2) * ratio)
     warped_image = cv2.cvtColor(warped_image, cv2.COLOR_BGR2GRAY)
-    cv2.imshow("Warped", imutils.resize(warped_image, height = 650))
-    cv2.waitKey(0)
     # Applying Adaptive Threshold and Saving the Scanned Output
     T = threshold_local(warped_image, 11, offset=10, method="gaussian")
     warped = (warped_image > T).astype("uint8") * 255
     resized_warped = imutils.resize(warped, height = 650)
-    # Output image
-    # processed_image = imutils.resize(warped, 650)
     # Convert the processed image to a BytesIO object
     processed_image_bytes = BytesIO()
     cv2.imwrite("temp.png", resized_warped)  # Save the processed image temporarily
@@ -74,4 +64,4 @@ async def process_image(file: UploadFile = File(...)):
     return Response(content=final_image, media_type="image/png")
   except Exception as error:
     print(error)
-    raise HTTPException(status_code=500, detail="There was an error while trying to process the image")
+    raise HTTPException(status_code=500, detail="There was an error while processing your image")
