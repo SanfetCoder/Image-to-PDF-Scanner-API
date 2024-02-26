@@ -50,13 +50,13 @@ def perspective_transform(image, pts):
 
 	# compute the perspective transform matrix
 	transform_matrix = cv2.getPerspectiveTransform(rect, dst)
+  # Convert the image to a NumPy array if it's not already
 	# Apply the transform matrix
-	warped = cv2.warpPerspective(image, transform_matrix, (maxWidth, maxHeight))
+	warped = cv2.warpPerspective(np.array(image), transform_matrix, (maxWidth, maxHeight))
 
 	# return the warped image
 	return warped
 
-def get_image_dimensions(image_path):
-  with Image.open(image_path) as image:
-    width, height = image.size
-    return width, height
+def get_image_dimensions(imageFile):
+  width, height = imageFile.size
+  return width, height
