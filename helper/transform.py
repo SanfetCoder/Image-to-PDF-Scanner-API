@@ -64,3 +64,18 @@ def perspective_transform(image, pts):
 
   # return the warped image
   return warped
+
+def resize_to_a4(warped_image, T, dpi=400):
+    # Define A4 paper dimensions in inches
+    a4_width_inch = 8.27
+    a4_height_inch = 11.69
+
+    # Convert A4 dimensions from inches to pixels
+    a4_width_pixels = int(a4_width_inch * dpi)
+    a4_height_pixels = int(a4_height_inch * dpi)
+
+    # Resize the warped image to A4 format
+    resized_warped = (warped_image > T).astype("uint8") * 255
+    resized_warped = cv2.resize(resized_warped, (a4_width_pixels, a4_height_pixels))
+
+    return resized_warped

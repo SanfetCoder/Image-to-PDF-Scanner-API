@@ -9,6 +9,7 @@ from skimage.filters import threshold_local
 from helper.transform import perspective_transform
 from helper.image import convert_to_cv
 
+
 # App instance
 app = FastAPI()
 
@@ -65,3 +66,6 @@ async def process_image(file: UploadFile = File(...)):
   except Exception as error:
     print(error)
     raise HTTPException(status_code=500, detail="There was an error while processing your image")
+
+
+
