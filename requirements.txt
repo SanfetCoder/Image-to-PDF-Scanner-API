@@ -70,6 +70,7 @@ packaging==23.2
 pandas==1.4.4
 pathspec==0.12.1
 pillow==10.2.0
+pillow-heif==0.16.0
 pluggy==1.4.0
 protobuf==4.25.3
 pyarrow==5.0.0

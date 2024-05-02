@@ -2,6 +2,8 @@ import numpy as np
 import cv2
 from PIL import Image
 from helper.image import convert_to_cv
+from io import BytesIO 
+
 
 def order_points(pts):
 	# initialzie a list of coordinates that will be ordered
@@ -74,8 +76,51 @@ def resize_to_a4(warped_image, T, dpi=400):
     a4_width_pixels = int(a4_width_inch * dpi)
     a4_height_pixels = int(a4_height_inch * dpi)
 
-    # Resize the warped image to A4 format
+    # Get the dimensions of the original image
+    orig_height, orig_width = warped_image.shape[:2]
+
+    # Calculate the aspect ratio of the original image
+    orig_aspect_ratio = orig_width / orig_height
+
+    # Calculate the target width and height for resizing while maintaining aspect ratio
+    if orig_aspect_ratio > 1:  # If the original image is horizontal
+        target_width = a4_width_pixels
+        target_height = int(target_width / orig_aspect_ratio)
+    else:  # If the original image is vertical
+        target_height = a4_height_pixels
+        target_width = int(target_height * orig_aspect_ratio)
+
+    # Resize the warped image to the target dimensions
     resized_warped = (warped_image > T).astype("uint8") * 255
-    resized_warped = cv2.resize(resized_warped, (a4_width_pixels, a4_height_pixels))
+    resized_warped = cv2.resize(resized_warped, (target_width, target_height))
 
     return resized_warped
+
+
+def convert_to_png(image):
+    try:
+        if image.mode != 'RGBA':
+            image = image.convert('RGBA')
+        png_data = BytesIO()  # Create a BytesIO object to hold the PNG data
+        image.save(png_data, format='PNG')  # Save the image as PNG into the BytesIO object
+        png_data.seek(0)  # Move the cursor to the beginning of the BytesIO object
+        print("Image converted successfully!")
+        return png_data
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
+def rotate_image(image_path, angle):
+    # Open the image file
+    image = Image.open(image_path)
+    
+    # Rotate the image by the specified angle (clockwise)
+    rotated_image = image.rotate(angle,expand=True)
+    
+    return rotated_image
+
+# # Example usage
+# image_path = r'D:\work\scan_image\permit-scan-document\temp.png'  # Replace with the path to your image file
+# rotation_angle = -90  # Specify the angle of rotation in degrees (clockwise)
+# rotated_image = rotate_image(image_path, rotation_angle)
+# rotated_image.show()  # Display the rotated image

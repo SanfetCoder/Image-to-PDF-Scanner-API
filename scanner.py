@@ -7,20 +7,30 @@ from PIL import Image
 import cv2
 import imutils
 from skimage.filters import threshold_local
-from helper.transform import perspective_transform,resize_to_a4
-from helper.image import convert_to_cv 
+from helper.transform import perspective_transform,resize_to_a4,convert_to_png,rotate_image
+from helper.image import convert_to_cv,is_heic_file
 import matplotlib.pyplot as plt
+from pillow_heif import register_heif_opener
+register_heif_opener()
 
 
 
-image_path = r"D:\work\scan_image\permit-scan-document\image\desk.JPG"
-with open(image_path, "rb") as f:
-    file_bytes = f.read()# Reading image from the request
+image_path = r"D:\work\scan_image\permit-scan-document\image\test_2.heif"
+if is_heic_file(image_path):
+    image = Image.open(image_path)
+    image = convert_to_png(image)
+    image = Image.open(image)
+else:
+    with open(image_path, "rb") as f:
+        file_bytes = f.read()# Reading image from the request
+    image_bytes = file_bytes
+    image_stream = BytesIO(image_bytes) # Buffer the bytes in-memory
+    image = Image.open(image_stream) # Read the file bytes and store it in image variable
 
-image_bytes = file_bytes
-image_stream = BytesIO(image_bytes) # Buffer the bytes in-memory
-image = Image.open(image_stream) # Read the file bytes and store it in image variable
+
+
 copy = image.copy() # Copy version of the image as original file
+
 
 
 width, height = image.size # Get the dimension of the image
