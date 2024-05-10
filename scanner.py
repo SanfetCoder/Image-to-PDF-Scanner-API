@@ -5,17 +5,19 @@ import numpy as np
 import PIL
 from PIL import Image
 import cv2
+from cv2 import dnn_superres
 import imutils
 from skimage.filters import threshold_local
-from helper.transform import perspective_transform,resize_to_a4,convert_to_png,rotate_image
+from helper.transform import perspective_transform,resize_to_a4,convert_to_png,rotate_image,upscale
 from helper.image import convert_to_cv,is_heic_file
 import matplotlib.pyplot as plt
 from pillow_heif import register_heif_opener
+
 register_heif_opener()
 
 
 
-image_path = r"D:\work\scan_image\permit-scan-document\image\test_2.heif"
+image_path = r"D:\work\scan_image\permit-scan-document\image\test_4.jpg"
 if is_heic_file(image_path):
     image = Image.open(image_path)
     image = convert_to_png(image)
@@ -26,12 +28,18 @@ else:
     image_bytes = file_bytes
     image_stream = BytesIO(image_bytes) # Buffer the bytes in-memory
     image = Image.open(image_stream) # Read the file bytes and store it in image variable
-
-
+# Convert PIL Image to RGB format
+image_rgb = image.convert('RGB')
+# Upscale the image
+upscaled = upscale(np.array(image_rgb))
 
 copy = image.copy() # Copy version of the image as original file
 
-
+# Show the RGB image
+plt.imshow(upscaled)
+plt.axis('off')
+plt.show()
+# Normal will be <class 'PIL.Image.Image'>
 
 width, height = image.size # Get the dimension of the image
 ratio = width / 500.0 # Ratio of the image
@@ -42,9 +50,9 @@ processed_image = cv2.cvtColor(np.array(resized_image), cv2.COLOR_RGB2GRAY) # Co
 blurred_image = cv2.GaussianBlur(processed_image, (5, 5), 0) # Applying edge detector
 edged_img = cv2.Canny(blurred_image, 75, 200) # Find the edge of document
 
-cv2.imwrite("test_4-process.png", processed_image)  # Save the processed image temporarily
-cv2.imwrite("test_4-blur.png", blurred_image)  # Save the processed image temporarily
-cv2.imwrite("test_4-edge.png", edged_img)  # Save the processed image temporarily
+# cv2.imwrite("test_4-process.png", processed_image)  # Save the processed image temporarily
+# cv2.imwrite("test_4-blur.png", blurred_image)  # Save the processed image temporarily
+# cv2.imwrite("test_4-edge.png", edged_img)  # Save the processed image temporarily
 
 
 # Find the largest contour of the edges
@@ -84,7 +92,6 @@ cv2.drawContours(img, [np.array(doc)], -1, (0, 255, 0), 2)
 warped_image = perspective_transform(copy, doc.reshape(4, 2) * ratio)
 warped_image = cv2.cvtColor(warped_image, cv2.COLOR_BGR2GRAY)
 
-
 # cv2.imwrite("desk-warp.png", warped_image)  # Save the processed image temporarily
 
 
@@ -96,24 +103,6 @@ warped = (warped_image > T).astype("uint8") * 255
 # Resize the thresholded image to A4 format
 resized_image_a4 = resize_to_a4(warped, T)
 
-# Create a figure with two subplots
-fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-
-# Plot the original image in the first subplot
-axes[0].imshow(warped_image)
-axes[0].set_title('warped Image')
-axes[0].axis('off')
-
-# Plot the resized image in the second subplot
-axes[1].imshow(resized_image_a4)
-axes[1].set_title('Resized Image')
-axes[1].axis('off')
-
-# Adjust layout
-plt.tight_layout()
-
-# Show the plot
-plt.show()
 # Convert the processed image to a BytesIO object
 processed_image_bytes = BytesIO()
 cv2.imwrite("temp.png", resized_image_a4)  # Save the processed image temporarily
@@ -129,4 +118,5 @@ final_image = processed_image_bytes.read()
 # Save the processed image bytes to a file
 with open("desk-result.png", "wb") as out_f:
     out_f.write(final_image)
+
 

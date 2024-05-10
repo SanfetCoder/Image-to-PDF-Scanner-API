@@ -3,6 +3,8 @@ import cv2
 from PIL import Image
 from helper.image import convert_to_cv
 from io import BytesIO 
+from cv2 import dnn_superres
+
 
 
 def order_points(pts):
@@ -109,7 +111,7 @@ def convert_to_png(image):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-
+# some image might need rotate this code might help you
 def rotate_image(image_path, angle):
     # Open the image file
     image = Image.open(image_path)
@@ -118,9 +120,33 @@ def rotate_image(image_path, angle):
     rotated_image = image.rotate(angle,expand=True)
     
     return rotated_image
+  # # Example usage
+  # image_path = r'D:\work\scan_image\permit-scan-document\temp.png'  # Replace with the path to your image file
+  # rotation_angle = -90  # Specify the angle of rotation in degrees (clockwise)
+  # rotated_image = rotate_image(image_path, rotation_angle)
+  # rotated_image.show()  # Display the rotated image
 
-# # Example usage
-# image_path = r'D:\work\scan_image\permit-scan-document\temp.png'  # Replace with the path to your image file
-# rotation_angle = -90  # Specify the angle of rotation in degrees (clockwise)
-# rotated_image = rotate_image(image_path, rotation_angle)
-# rotated_image.show()  # Display the rotated image
+
+def upscale(input_image):
+  # Create an SR object
+  sr = dnn_superres.DnnSuperResImpl_create()
+
+  # Read image
+  image = input_image
+  # Read the desired model
+  # fast
+  path = "FSRCNN_x4.pb" 
+  # # medium
+  # path = "LapSRN_x8.pb" 
+  # # slow
+  # path = "EDSR_x4.pb" 
+  sr.readModel(path)
+
+  # Set the desired model and scale to get correct pre- and post-processing
+  sr.setModel("fsrcnn", 4)
+
+  # Upscale the image
+  result = sr.upsample(image)
+  result = Image.fromarray(result)
+ 
+  return result
