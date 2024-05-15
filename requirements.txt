@@ -130,3 +130,5 @@ validators==0.22.0
 xxhash==3.4.1
 yamllint==1.35.1
 yarl==1.9.4
+numpy==1.26.4
+opencv-contrib-python==4.9.0.80

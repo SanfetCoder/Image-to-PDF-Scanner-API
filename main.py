@@ -9,7 +9,6 @@ from skimage.filters import threshold_local
 from helper.transform import perspective_transform
 from helper.image import convert_to_cv
 
-
 # App instance
 app = FastAPI()
 
@@ -22,7 +21,7 @@ async def process_image(file: UploadFile = File(...)):
     image = Image.open(image_stream) # Read the file bytes and store it in image variable
     copy = image.copy() # Copy version of the image as original file
     # Image dimension
-    width, height = image.size # Get the dimension of the image
+    width, _ = image.size # Get the dimension of the image
     ratio = width / 500.0 # Ratio of the image
     resized_image = imutils.resize(np.array(image), 500)
     # Perform desired image processing here (e.g., resizing, grayscaling, etc.)

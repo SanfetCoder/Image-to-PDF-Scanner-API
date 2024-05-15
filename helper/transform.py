@@ -1,11 +1,9 @@
 import numpy as np
 import cv2
 from PIL import Image
-from helper.image import convert_to_cv
+from image import convert_to_cv
 from io import BytesIO 
 from cv2 import dnn_superres
-
-
 
 def order_points(pts):
 	# initialzie a list of coordinates that will be ordered
@@ -133,6 +131,7 @@ def upscale(input_image):
 
   # Read image
   image = input_image
+  
   # Read the desired model
   # fast
   path = "FSRCNN_x4.pb" 
