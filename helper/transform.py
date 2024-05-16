@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 from PIL import Image
-from image import convert_to_cv
+from helper.image import convert_to_cv
 from io import BytesIO 
 from cv2 import dnn_superres
 

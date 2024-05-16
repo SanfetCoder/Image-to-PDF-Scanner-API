@@ -4,30 +4,30 @@ from PIL import Image
 import cv2
 import imutils
 from skimage.filters import threshold_local
-from transform import perspective_transform,resize_to_a4, convert_to_png
-from image import is_heic_file
+from helper.transform import perspective_transform,resize_to_a4, convert_to_png
+from helper.image import is_heic_file
 import matplotlib.pyplot as plt
 from pillow_heif import register_heif_opener
+import os
 
-def get_scanned_document(image_path : str):
+# Get the current directory of the script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+def get_scanned_document(image_stream : BytesIO, filename : str):
     try:
+        # Construct the file path relative to the script directory
+        temp_file_path = os.path.join(current_dir, "../static/image/result", f"{filename}_response.png")
         # Enable reading .HEIF file
         register_heif_opener()
         
         # Reading the image based on whether it is .HEIC file or not
-        if is_heic_file(image_path):
-            image = Image.open(image_path)
-            image = convert_to_png(image)
+        if is_heic_file(filename):
+            image = convert_to_png(image_stream)
             image = Image.open(image)
         else:
-            with open(image_path, "rb") as f:
-                file_bytes = f.read()
-            image_bytes = file_bytes
-            image_stream = BytesIO(image_bytes) 
             image = Image.open(image_stream)
             
         copy = image.copy()
-
         # Show the RGB image
         # plt.imshow(image)
         # plt.axis('off')
@@ -86,8 +86,8 @@ def get_scanned_document(image_path : str):
 
         # Convert the processed image to a BytesIO object
         processed_image_bytes = BytesIO()
-        cv2.imwrite("../static/image/result/temp.png", resized_image_a4)  # Save the processed image temporarily
-        with open("../static/image/result/temp.png", "rb") as f:
+        cv2.imwrite(temp_file_path, resized_image_a4)  # Save the processed image temporarily
+        with open(temp_file_path, "rb") as f:
             processed_image_bytes.seek(0)
             processed_image_bytes.truncate()
             processed_image_bytes.write(f.read())
