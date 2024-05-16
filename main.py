@@ -2,6 +2,7 @@ from fastapi import FastAPI, UploadFile, File, Response, HTTPException
 from io import BytesIO
 from helper.scanner import get_scanned_document
 from fastapi.staticfiles import StaticFiles
+import uvicorn
 
 # App instance
 app = FastAPI(
@@ -25,3 +26,6 @@ async def scan_image(file: UploadFile = File(...)):
   except Exception as error:
     print(error)
     raise HTTPException(status_code=500, detail="There was an error while processing your image")
+  
+if __name__ == '__main__':
+  uvicorn.run(app)
