@@ -4,11 +4,7 @@ from helper.scanner import get_scanned_document
 from fastapi.staticfiles import StaticFiles
 
 # App instance
-app = FastAPI(
-  title="image-to-pdf-scanner",
-  description="This is an api endpoint to convert image png to pdf",
-  version="0.0.1"
-)
+app = FastAPI()
 
 # Enable static folder for the app
 app.mount("/static", StaticFiles(directory="static"), name="static")
