@@ -9,6 +9,7 @@ app = FastAPI(
   description="This is an api endpoint to convert image png to pdf",
   version="0.0.1"
 )
+
 # Enable static folder for the app
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
