@@ -27,6 +27,7 @@ mdurl==0.1.2
 networkx==3.3
 numpy==1.26.4
 opencv-contrib-python==4.9.0.80
+opencv-python-headless==4.9.0.80
 orjson==3.10.3
 packaging==24.0
 pillow==10.3.0
