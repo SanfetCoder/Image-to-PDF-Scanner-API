@@ -12,11 +12,13 @@ import os
 
 # Get the current directory of the script
 current_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.dirname(current_dir)
 
 def get_scanned_document(image_stream : BytesIO, filename : str):
     try:
         # Construct the file path relative to the script directory
-        temp_file_path = os.path.join(current_dir, "../static/image/result", f"{filename}_response.png")
+        temp_file_path = os.path.join(root_dir, "static/image/result", f"{filename}_response.png")
+        print(f'[INFO] Processing image: {filename} at path: {temp_file_path}')
         # Enable reading .HEIF file
         register_heif_opener()
         
@@ -87,6 +89,7 @@ def get_scanned_document(image_stream : BytesIO, filename : str):
         # Convert the processed image to a BytesIO object
         processed_image_bytes = BytesIO()
         cv2.imwrite(temp_file_path, resized_image_a4)  # Save the processed image temporarily
+        print(f'[INFO] Image saved at {temp_file_path}')
         with open(temp_file_path, "rb") as f:
             processed_image_bytes.seek(0)
             processed_image_bytes.truncate()
