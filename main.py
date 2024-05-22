@@ -1,10 +1,21 @@
 from fastapi import FastAPI, UploadFile, File, Response, HTTPException
+from fastapi.responses import FileResponse
 from io import BytesIO
 from helper.scanner import get_scanned_document
 from fastapi.staticfiles import StaticFiles
-
+from fastapi.middleware.cors import CORSMiddleware
+from pathlib import Path
 # App instance
 app = FastAPI()
+
+# allow cors
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Enable static folder for the app
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -12,13 +23,15 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.post("/image/pdf")
 async def scan_image(file: UploadFile = File(...)):
   try:
+    print(f'[INFO] Processing image: {file.filename}')
     # Reading image from the request
     image_bytes = await file.read() # Read some bytes from the file
     image_stream = BytesIO(image_bytes) # Buffer the bytes in-memory
     
-    scanned_image = get_scanned_document(image_stream, file.filename)
-    
-    return Response(content=scanned_image, media_type="image/png")
+    _, file_path = get_scanned_document(image_stream, file.filename)
+    if not Path(file_path).is_file():
+      raise HTTPException(status_code=500, detail="Error happened while processing the image")
+    return FileResponse(file_path, media_type='application/pdf', filename='scanned_document.pdf')
   except Exception as error:
     print(error)
     raise HTTPException(status_code=500, detail="There was an error while processing your image")

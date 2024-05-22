@@ -99,6 +99,6 @@ def get_scanned_document(image_stream : BytesIO, filename : str):
         processed_image_bytes.seek(0)
         final_image = processed_image_bytes.read()
         
-        return final_image
+        return (final_image, temp_file_path)
     except Exception as e:
         raise Exception(e)
