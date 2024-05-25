@@ -30,11 +30,7 @@ def get_scanned_document(image_stream : BytesIO, filename : str):
             image = Image.open(image_stream)
             
         copy = image.copy()
-        # Show the RGB image
-        # plt.imshow(image)
-        # plt.axis('off')
-        # plt.show()
-
+        
         # Normal will be <class 'PIL.Image.Image'>
         width, height = image.size # Get the dimension of the image
         ratio = width / 500.0 # Ratio of the image

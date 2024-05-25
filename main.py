@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Response, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse
 from io import BytesIO
 from helper.scanner import get_scanned_document
@@ -27,11 +27,10 @@ async def scan_image(file: UploadFile = File(...)):
     # Reading image from the request
     image_bytes = await file.read() # Read some bytes from the file
     image_stream = BytesIO(image_bytes) # Buffer the bytes in-memory
-    
+
     _, file_path = get_scanned_document(image_stream, file.filename)
     if not Path(file_path).is_file():
-      raise HTTPException(status_code=500, detail="Error happened while processing the image")
+      raise HTTPException(status_code=500, detail="รูปภาพไม่ชัดเจน หรือ อยู่ในที่มืด")
     return FileResponse(file_path, media_type='application/pdf', filename='scanned_document.pdf')
   except Exception as error:
-    print(error)
-    raise HTTPException(status_code=500, detail="There was an error while processing your image")
+    raise HTTPException(status_code=500, detail="รูปภาพไม่ชัดเจน หรือ อยู่ในที่มืด")
